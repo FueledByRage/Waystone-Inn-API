@@ -15,6 +15,7 @@ module.exports = {
             const userLiking = await User.findById(userId)
             const post2Like = await Post.findById(id).select('+listOfUsersWhoLikedIt +listOfUsersWhoDislikedIt')
 
+            if(!id) throw errorFactory(406, 'Missing post id.')
     
             if(post2Like.listOfUsersWhoDislikedIt.includes(userLiking.user)){
                 post2Like.listOfUsersWhoDislikedIt.pull(userLiking.user)
@@ -45,6 +46,8 @@ module.exports = {
             const userDisliking = await User.findById(userId)
             const post2Like = await Post.findById(id).select('+listOfUsersWhoLikedIt +listOfUsersWhoDislikedIt')
 
+            if(!id) throw errorFactory(406, 'Missing post id.')
+            
     
             if(post2Like.listOfUsersWhoLikedIt.includes(userDisliking.user)){
                 post2Like.listOfUsersWhoLikedIt.pull(userDisliking.user)
