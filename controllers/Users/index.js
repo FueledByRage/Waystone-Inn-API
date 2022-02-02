@@ -16,13 +16,12 @@ module.exports = {
             const { name, user, email, password } = req.body
             const { key } = req.file ? req.file : { key: null }
             
-            if(!name || !user || !email || ! password) throw errorFactory(406, 'Missing params.')
+            if(!name || !user || !email || !password) throw errorFactory(406, 'Missing params.')
             
-            if(await User.find({ 
-                email: email,
-                user: user
-             })){
-                throw errorFactory(404, 'User not found.')
+            const userFound = await User.findOne({email: email})
+
+            if(userFound){
+                throw errorFactory(404, 'User already registered.')
             }
             
         const newUser = await new User({
