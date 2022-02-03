@@ -7,7 +7,18 @@ require('dotenv').config({
 
 
 beforeAll(async ()=>{
-    await mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+    const { DATABASE_USER, DATABASE_PASSWORD, DATABASE_PORT } = process.env
+
+
+    //BD
+    mongoose.connect(`mongodb://${DATABASE_USER}:${DATABASE_PASSWORD}@localhost:${DATABASE_PORT}/`, { useNewUrlParser: true, useUnifiedTopology: true }).
+    then(()=>{
+        console.log('connected')
+    }).catch(
+        (e)=>{
+            console.log( 'Error ' + e + ' has occuried' )
+        }
+    )
 })
 
 afterAll(()=>{
@@ -19,7 +30,9 @@ test('POST /inn/community/register - must get status 406 if any param is missing
     const response = await supertest(http).post('/inn/community/register').send({
         name: '',
         description: ''
-    })
+    }).set({
+        authorization: ''
+    });
     expect(response.statusCode).toBe(406)
 })
 
@@ -30,16 +43,18 @@ test('GET /inn/user/get/:user', async()=>{
 
 test('POST /inn/communities - must get status 406 if any param is missing', async()=>{
     const response = await supertest(http).post('/inn/communities').send({
-        token: undefined
-    })
+    }).set({
+        authorization: undefined
+    });
     expect(response.statusCode).toBe(406)
 })
 
 test('POST /inn/community/sub - must get status 406 if any param is missing', async()=>{
     const response = await supertest(http).post('/inn/community/sub').send({
-        token: undefined,
         id: undefined,   
-    })
+    }).set({
+        authorization: undefined
+    });
     expect(response.statusCode).toBe(406)
 })
 
@@ -51,6 +66,8 @@ test('GET /inn/community/:id/:page/:user', async()=>{
 test('POST /inn/communities/filter - must get status 406 if any param is missing', async()=>{
     const response = await supertest(http).post('/inn/communities/filter').send({
         name: undefined 
-    })
+    }).set({
+        authorization: ''
+    });
     expect(response.statusCode).toBe(406)
 })
