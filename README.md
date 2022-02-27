@@ -19,7 +19,21 @@ You can open it on your IDE and run npm update
 
 `npm update`
 
-create a .env file and write your local variables such as mongodb url and port
+create a .env file with the variables 
+
+API_PORT 
+DATABASE_PORT 
+DATABASE_NAME 
+DATABASE_USER
+DATABASE_PASSWORD
+SECRET_KEY
+URL (uploaded files base url)
+
+configure the docker-compose file 
+
+init the mongodb docker using the docker compose
+
+`docker-compose up`
 
 runs npm start
 

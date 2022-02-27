@@ -13,7 +13,7 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use('/inn/img',
-express.static(path.resolve(__dirname, 'uploads', 'img'))
+    express.static(path.resolve(__dirname, 'uploads', 'img'))
 )
 
 //Routes

@@ -19,7 +19,7 @@ module.exports = {
 
             if(!title || !id || !token ) throw errorFactory(406, 'Missing params.')
             
-
+            
             const authorId = await cryptography.decriptToken(token).catch((error)=>{ 
                 throw errorFactory(406, error.message)
             })  
@@ -87,6 +87,9 @@ module.exports = {
             catch((error)=>{ 
                 throw errorFactory(404, 'Post data not found.')
             })
+
+            if(!post) throw errorFactory(404 , 'Post data not found.')
+
             const like = user == 'nl' ? false : post.listOfUsersWhoLikedIt.includes(user)
             const dislike = user == 'nl' ? false : post.listOfUsersWhoDislikedIt.includes(user)
             res.json({post, like, dislike})

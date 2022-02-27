@@ -56,7 +56,6 @@ module.exports = {
                  throw errorFactory(404, 'Could not find community.')
              })
             
-            console.log(community)
 
             if(!community) return res.status(404).send('Community not found.')
 
@@ -77,6 +76,7 @@ module.exports = {
             const userId = await decriptToken(token).catch((error)=>{ throw errorFactory(error.message, 406) })
             const user = await User.findById(userId).catch((error) => { throw errorFactory(404, 'Error validating user.') })
             const docs = await Community.find( {'_id' : { $in: user.subs }} ).populate('userId', 'user').catch((error)=>{ throw errorFactory(404, 'Error finding data.') }) 
+            
             res.json(docs)
         } catch (error) {
            cb(error)
@@ -94,7 +94,7 @@ module.exports = {
     
             const user = await User.findById(userId).catch((error)=>{ throw errorFactory(404, 'Error getting user.') })
             const community = await Community.findById(id).select('+members').catch((error)=> { throw errorFactory(404, 'Could not find requested community') })
-            
+            if(!user) throw errorFactory(500, 'User not found.');
             if(!user.subs.includes(community._id)){
                 user.subs.push(community._id)
                 user.save().catch((error) => { throw errorFactory(500, 'Something went wrong, please try it again later.') })
