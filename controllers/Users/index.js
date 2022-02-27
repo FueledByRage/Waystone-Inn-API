@@ -56,7 +56,7 @@ module.exports = {
                 throw errorFactory(406, error.message)
             })
     
-            await User.updateOne({_id: userId}, { profileURL: key ? `${process.env.URL}img/${key}` : null }).
+            await User.updateOne({_id: userId}, { profileURL: key ? `${process.env.URL}img/profile/${key}` : null }).
             catch((error) =>{ 
                 throw errorFactory(500, 'Error updating data')
             })
