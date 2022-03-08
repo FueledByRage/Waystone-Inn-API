@@ -40,7 +40,7 @@ module.exports = {
         })
 
         const responseJson = { username: newUser.user, token: token, subs: newUser.subs }
-        res.json(responseJson)
+        res.status(201).json(responseJson)
         }catch(error){
            cb(error)
         }

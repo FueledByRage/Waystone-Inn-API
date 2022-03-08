@@ -13,16 +13,16 @@ const { decriptToken } = require('../../utils/cryptography')
 module.exports = {
     async register(req, res, cb){
         try {
-            const token = req.headers.authorization
-            const { title, body, id } = req.body
+            const token = req.headers.authorization;
+            const { title, body, id } = req.body;
             const { key } = req.file ? req.file : { key: null }
 
-            if(!title || !id || !token ) throw errorFactory(406, 'Missing params.')
+            if(!title || !id || !token ) throw errorFactory(406, 'Missing params.');
             
             
             const authorId = await cryptography.decriptToken(token).catch((error)=>{ 
                 throw errorFactory(406, error.message)
-            })  
+            });
 
 
             const post = await new Post({
@@ -32,10 +32,10 @@ module.exports = {
                 fileName: key || null,
                 authorId: authorId
             }).save().catch((error)=>{ throw error })
-            return res.status(201).send({_id: post.id})
+            return res.status(201).send({_id: post.id});
 
         } catch (error) {
-            cb(error)
+            cb(error);
         }
     },
     async getPosts(req, res, cb){

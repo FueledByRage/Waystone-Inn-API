@@ -85,35 +85,38 @@ module.exports = {
     async sub(req, res, cb){
 
         try {
-            const token = req.headers.authorization
-            const { id } = req.body
+            const token = req.headers.authorization;
+            const { id } = req.params;
 
-            if(!token || !id) return res.status(406).send('Missing data.')
+            if(!token) return res.status(406).send('Token authorization error');
             
-            const userId = await decriptToken(token).catch((error) => { throw errorFactory(406, error.message, ) })
+            const userId = await decriptToken(token).catch((error) => { throw errorFactory(406, error.message, ) });
     
-            const user = await User.findById(userId).catch((error)=>{ throw errorFactory(404, 'Error getting user.') })
-            const community = await Community.findById(id).select('+members').catch((error)=> { throw errorFactory(404, 'Could not find requested community') })
+            const user = await User.findById(userId)
+            .catch((error)=>{ throw errorFactory(404, 'Error getting user.') });
+            const community = await Community.findById(id)
+            .select('+members').catch((error)=> { throw errorFactory(404, 'Could not find requested community') });
+            
             if(!user) throw errorFactory(500, 'User not found.');
             if(!user.subs.includes(community._id)){
-                user.subs.push(community._id)
-                user.save().catch((error) => { throw errorFactory(500, 'Something went wrong, please try it again later.') })
-                
+                user.subs.push(community._id);
+                user.save();
             }else{
-                user.subs.splice(user.subs.indexOf(user.user))
-                user.save().catch((error) => { throw errorFactory(500, 'Something went wrong, please try it again later.') })
+                user.subs.splice(user.subs.indexOf(user.user));
+                user.save();
             }
+
             if(!community.members.includes(user.user)){
-                community.members.push(user.user)
-                community.save().catch((error) => { throw errorFactory(500, 'Something went wrong, please try it again later.') })
+                community.members.push(user.user);
+                community.save();
             }else{
-                community.members.splice(community.members.indexOf(user.user))
-                community.save().catch((error) => { throw errorFactory(500, 'Something went wrong, please try it again later.') })
+                community.members.splice(community.members.indexOf(user.user));
+                community.save();
             }
     
-            res.status(200).send()
+            res.status(200).send();
         } catch (error) {
-            cb(error)
+            cb(error);
         }
     },
     async getCommunityAndPost(req, res, cb){

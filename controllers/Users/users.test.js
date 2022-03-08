@@ -11,14 +11,7 @@ beforeAll(async ()=>{
 
 
     //BD
-    mongoose.connect(`mongodb://${DATABASE_USER}:${DATABASE_PASSWORD}@localhost:${DATABASE_PORT}/`, { useNewUrlParser: true, useUnifiedTopology: true }).
-    then(()=>{
-        console.log('connected')
-    }).catch(
-        (e)=>{
-            console.log( 'Error ' + e + ' has occuried' )
-        }
-    )
+    await mongoose.connect(`mongodb://${DATABASE_USER}:${DATABASE_PASSWORD}@localhost:${DATABASE_PORT}/`, { useNewUrlParser: true, useUnifiedTopology: true });
 })
 
 afterAll(()=>{
@@ -34,7 +27,19 @@ test('POST /inn/login - it must return 404 if you use a not resgistered email 50
         authorization: ''
     });
     expect(response.statusCode).toBe(406)
-})
+});
+
+test('POST /inn/login - it must return 404 if you use a not resgistered email 505 using a wrong password or 202 when everything is ok',
+ async ()=>{
+    const response = await supertest(http).post('/inn/login').send({
+        email: 'erkmgwr@gmail.com',
+        password: 'gomugomu'
+    }).set({
+        authorization: ''
+    });
+    expect(response.statusCode).toBe(200)
+});
+
 
 test('POST /inn/user/register - must get status 406 if any param is missing', async()=>{
     const response = await supertest(http).post('/inn/user/register').send({
@@ -44,9 +49,21 @@ test('POST /inn/user/register - must get status 406 if any param is missing', as
         authorization: ''
     });
     expect(response.statusCode).toBe(406)
-})
+});
+
+test('POST /inn/user/register - must get status 406 if any param is missing', async()=>{
+    const response = await supertest(http).post('/inn/user/register').send({
+        name: 'Erik Natan',
+        user: 'Ace',
+        email: 'natan@gmail.com',
+        password: '1234'
+    }).set({
+        authorization: ''
+    });
+    expect(response.statusCode).toBe(201);
+});
 
 test('GET /inn/user/get/:user', async()=>{
     const response = await supertest(http).get('/inn/user/get/notRegistered')
     expect(response.statusCode).toBe(404)
-})
+});
