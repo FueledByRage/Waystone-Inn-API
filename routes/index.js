@@ -10,9 +10,9 @@ const multer = require('multer');
 
 
 router.post('/post/register', multer(configMulter).single('file'), postController.register);
-router.get('/post/:id/:user', postController.getPost);
+router.get('/post/:id', postController.getPost);
 router.get('/posts/:id/:page', postController.getByCommunity);
-router.post('/posts/', postController.getPosts);
+router.get('/posts/feed/:page/:registers', postController.getPosts);
 router.post('/post/deletePost', postController.deletePost);
 
 
@@ -23,10 +23,10 @@ router.post('/comment/deleteComment', commentController.deleteComment);
 
 router.post('/community/register', communityController.register);
 router.get('/community/sub/:id', communityController.sub);
-router.get('/community/:id/:page/:user', communityController.getCommunityAndPost);
+router.get('/community/:id/:page', communityController.getCommunityAndPost);
 router.get('/communities', communityController.getCommunities);
 router.get('/community/:id', communityController.getCommunity);
-router.post('/communities/filter', communityController.getCommunitiesByParam);
+router.get('/communities/:name', communityController.getCommunitiesByParam);
 
 
 router.post('/user/register', userController.register);

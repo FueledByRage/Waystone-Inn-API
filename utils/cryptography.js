@@ -18,10 +18,11 @@ module.exports ={
     },
     
     async decriptToken(token){
+        if(!token) return null;
         return new Promise((resolve, reject) =>{
             jwt.verify(token, process.env.SECRET_KEY, (error, decoded) => {
-                if(error) reject(error)
-                resolve(decoded.id)
+                if(error) reject(error);
+                resolve(decoded.id);
             })
         })
     

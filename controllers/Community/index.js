@@ -12,14 +12,14 @@ module.exports = {
     async register(req, res, cb){
         try{
         
-        const token = req.headers.authorization
-        const { name, description } = req.body
+        const token = req.headers.authorization;
+        const { name, description } = req.body;
 
-        if(!token || !name || !description) return res.status(406).send('Missing data!')
+        if(!token || !name || !description) return res.status(406).send('Missing data!');
     
 
         const userId = await decriptToken(token).catch((error) => { 
-            throw errorFactory(error.message, 406)
+            throw errorFactory(error.message, 406);
         })
     
         const newCommunity = {
@@ -30,20 +30,20 @@ module.exports = {
     
         const community = await new Community(newCommunity).save().catch((error)=>{ 
             throw errorFactory('Error reaching data.', 404)
-        })
+        });
 
         const user = await User.findById(userId).catch((error) => {
             throw errorFactory('Error validating user', 404)
-        })
-        community.members.push(user.user)
-        user.subs.push(community._id.toString())
-        await user.save()
-        await community.save()
+        });
+        community.members.push(user.user);
+        user.subs.push(community._id.toString());
+        await user.save();
+        await community.save();
 
-        res.status(201).send({id: community._id})
+        res.status(201).send({id: community._id});
         
         }catch(error){
-            cb(error)
+            cb(error);
         }
     
     },
@@ -75,7 +75,8 @@ module.exports = {
 
             const userId = await decriptToken(token).catch((error)=>{ throw errorFactory(error.message, 406) })
             const user = await User.findById(userId).catch((error) => { throw errorFactory(404, 'Error validating user.') })
-            const docs = await Community.find( {'_id' : { $in: user.subs }} ).populate('userId', 'user').catch((error)=>{ throw errorFactory(404, 'Error finding data.') }) 
+            const docs = await Community.find( {'_id' : { $in: user.subs }} ).limit(3)
+            .catch((error)=>{ throw errorFactory(404, 'Error finding data.') }) 
             
             res.json(docs)
         } catch (error) {
@@ -94,10 +95,12 @@ module.exports = {
     
             const user = await User.findById(userId)
             .catch((error)=>{ throw errorFactory(404, 'Error getting user.') });
+
             const community = await Community.findById(id)
             .select('+members').catch((error)=> { throw errorFactory(404, 'Could not find requested community') });
             
             if(!user) throw errorFactory(500, 'User not found.');
+
             if(!user.subs.includes(community._id)){
                 user.subs.push(community._id);
                 user.save();
@@ -122,36 +125,49 @@ module.exports = {
     async getCommunityAndPost(req, res, cb){
         try {
             
-            const { id, page, user } = req.params
+            const token = req.headers.authorization;
+            const { id, page, registers } = req.params;
+            
+            const userId = await decriptToken(token)
+            .catch((error) => { throw errorFactory(406, error.message, ) });
+    
+            const  userFound  = await User.findById(userId)
+            .catch((error)=>{ throw errorFactory(404, 'Error getting user.') });
             
             const count = await Post.find({communityId: id}).countDocuments().catch((error) => {
                 throw errorFactory(404,'Could not find posts',)
-            })
-            const skip = page * 3 - 3 
+            });
+
+            const skip = (parseInt(page) - 1) * parseInt(registers);
 
             const community = await Community.findById(id).populate('authorId', 'user').select('-_id +members')
-            .catch((error)=>{throw errorFactory(404, 'Could not find community.')})
+            .catch((error)=>{throw errorFactory(404, 'Could not find community.')});
             
             
-            const posts = await Post.find({communityId: id}).select('+listOfUsersWhoLikedIt +listOfUsersWhoDislikedIt').skip(skip).limit(3).populate('authorId', 'user')
-            .catch((error) => {throw errorFactory(404, 'Error on posts data.',)})
+            const posts = await Post.find({communityId: id}).select('+listOfUsersWhoLikedIt +listOfUsersWhoDislikedIt')
+            .skip(skip).limit(parseInt(registers)).populate('authorId', 'user')
+            .catch((error) => {throw errorFactory(404, 'Error on posts data.',)});
+
+            const lastPage =  count - (skip + parseInt(registers)) >= 0;
             
 
-            const docs = []
+
+            if(!token) return res.json({Community: community, posts: posts, lastPage: lastPage, sub: false})
+            
+            const docs = [];
             posts.forEach(post => {
-                const like = post.listOfUsersWhoLikedIt.includes(user)
-                const disliked = post.listOfUsersWhoDislikedIt.includes(user)
-                Reflect.deleteProperty(post, 'listOfUsersWhoLikedIt')
-                Reflect.deleteProperty(post, 'listOfUsersWhoDislikedIt')
-                docs.push({post: post, liked: like, disliked: disliked})
+                const like = post.listOfUsersWhoLikedIt.includes(userFound.user);
+                const disliked = post.listOfUsersWhoDislikedIt.includes(userFound.user);
+                Reflect.deleteProperty(post, 'listOfUsersWhoLikedIt');
+                Reflect.deleteProperty(post, 'listOfUsersWhoDislikedIt');
+                post.like = like;
+                post.disliked = disliked
+                docs.push(post);
             });
             
-            const lastPage = count % 3 == 0 ? count / 3 : 
-                Math.round(count / 3) == count / 3 ? (count / 3)+1 : 
-                Math.round(count / 3)
-            const sub = community.members.includes(user)
+            const sub = community.members.includes(userFound.user);
 
-            return res.status(200).send({Community: community, posts: docs, lastPage: lastPage, sub: sub})
+            return res.status(200).send({Community: community, posts: docs, lastPage: lastPage, sub: sub});
 
         } catch (error) {
             cb(error)
@@ -160,14 +176,13 @@ module.exports = {
     },
 
     async getCommunitiesByParam(req, res){
-        const { name } = req.body
+        const { name } = req.params;
 
-        if(!name) return res.status(406).send('Missing data.')
-
-        const response = await Community.find({name: {'$regex': name, '$options' : 'i'}}).catch((error)=>{
-            res.status(404).send(Error('Error findig data'))
+        const response = await Community.find({name: {'$regex': name, '$options' : 'i'}})
+        .catch((error)=>{
+            res.status(404).send(Error('Error findig data'));
         })
 
-        res.status(200).send({communities: response})
+        res.status(200).send({communities: response});
     }
 }

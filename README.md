@@ -64,7 +64,7 @@ The base URL is http://localhost:8000/inn/
 ENDPOINT | METHOD | PARAMS | EXPECTED SUCCESS | EXPECTED ERROR
 ---------|--------|--------|------------------|---------------|
 /login | POST | Email, password | CODE 200 - ok Return user's token and list of subs | {Message with error description} 
-/user/register| POST | Email, name, user and password | CODE 200 - ok Register a new user and return it | {Message with error description} 
+/user/register| POST | Email, name, user and password | CODE 201 - ok Register a new user and return it | {Message with error description} 
 /user/edit | POST | file | CODE 200 - ok Edit a profile photo of an user | {Message with error description} 
 /user/get/:user | GET | user | CODE 200 - ok User's data | {Message with error description} 
 
@@ -72,22 +72,22 @@ ENDPOINT | METHOD | PARAMS | EXPECTED SUCCESS | EXPECTED ERROR
 
 ENDPOINT | METHOD | PARAMS | EXPECTED SUCCESS | EXPECTED ERROR
 ---------|--------|--------|------------------|---------------|
-/community/register | POST | token, name and description | CODE 200 - ok Register a new community and return it | {Message with error description} 
+/community/register | POST | token, name and description | CODE 201 - ok Register a new community and return it | {Message with error description} 
 /community/sub | POST | token, id | CODE 200 - ok Subscribe a user to a community | {Message with error description} 
 /community/:id/:page | GET | id, page | CODE 200 - ok Get data of a community and a limited number of posts using the page param | {Message with error description} 
 /community/:id/ | GET | id | CODE 200 - ok Get data of a community | {Message with error description} 
-/communities | POST | userId | CODE 200 - ok Return the communities from a user | {Message with error description}
-/communities/filter | POST | name | CODE 200 - ok Get data of a community using its name as param | {Message with error description} 
+/communities | GET | Authorization Header | CODE 200 - ok Return the communities from a user | {Message with error description}
+/communities/:name | GET | community name | CODE 200 - ok Get data of a community using its name as param | {Message with error description} 
 
 ## Post:
 
 ENDPOINT | METHOD | PARAMS | EXPECTED SUCCESS | EXPECTED ERROR
 ---------|--------|--------|------------------|---------------|
-/post/register | POST | token, title, body or file, and id | CODE 200 - ok Register a post and return it | { Message with error description}
+/post/register | POST | token, title, body or file and Authorization token | CODE 200 - ok Register a post and return it | { Message with error description}
 /post/:id | GET | id | CODE 200 - ok Get a post using the post id as param | { Message with error description}
-/post/:id/:page | GET | id, page | CODE 200 - ok Return a number of posts based on community id and a page number as param | { Message with error description}
-/posts | POST | subs, page, nextMod | CODE 200 - ok it's receive the currenty page of a index and a mod that gonna be added to the page number and return a number of post from a list get using the subs as param | { Message with error description}
-/post/deletePost/:id | POST | id, token | CODE 200 - ok Delete a post by it's id | { Message with error description}
+/post/:id/:page/:registers | GET | id, page, number of register to return | CODE 200 - ok Return a number of posts based on community id and a page number as param | { Message with error description}
+/posts/feed/:page/:registers | GET | subs, page and Authorization token | CODE 200 - ok it's receive the currenty page of a index and a mod that gonna be added to the page number and return a number of post from a list get using the subs as param | { Message with error description}
+/post/deletePost/:id | POST | id, Authorization token | CODE 200 - ok Delete a post by it's id | { Message with error description}
 
 ## Comment:
 

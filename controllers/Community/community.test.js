@@ -11,14 +11,8 @@ beforeAll(async ()=>{
 
 
     //BD
-    await mongoose.connect(`mongodb://${DATABASE_USER}:${DATABASE_PASSWORD}@localhost:${DATABASE_PORT}/`, { useNewUrlParser: true, useUnifiedTopology: true }).
-    then(()=>{
-        console.log('connected')
-    }).catch(
-        (e)=>{
-            console.log( 'Error ' + e + ' has occuried' )
-        }
-    )
+    await mongoose.connect(`mongodb://${DATABASE_USER}:${DATABASE_PASSWORD}@localhost:${DATABASE_PORT}/`, 
+    { useNewUrlParser: true, useUnifiedTopology: true });
 })
 
 afterAll(async ()=>{
@@ -28,35 +22,36 @@ afterAll(async ()=>{
 
 test('POST /inn/community/register - must get status 406 if any param is missing', async()=>{
     
-    const token = undefined;
-
+    
+    //Not sending validation token
     const response = await supertest(http).post('/inn/community/register').send({
         name: '',
         description: ''
-    }).set({
-        authorization: token
     });
     expect(response.statusCode).toBe(406);
 });
 
-test('GET /inn/user/get/:user', async()=>{
-    const response = await supertest(http).get('/inn/community/notRegisteredId');
+test('GET /inn/community/get/', async()=>{
+    const id = 'NotRegistered';
+    const response = await supertest(http).get(`/inn/community/${id}`);
+
     expect(response.statusCode).toBe(404);
 });
 
 test('POST /inn/communities - must get status 406 if any param is missing', async()=>{
-    const response = await supertest(http).post('/inn/communities').send({}).set({
-        authorization: undefined
-    });
+
+    //Not sending validation token
+    const response = await supertest(http).get('/inn/communities');
     expect(response.statusCode).toBe(406);
 });
 
 test('POST /inn/community/sub - must get status 406 if any param is missing', async()=>{
-    const response = await supertest(http).post('/inn/community/sub').send({
-        id: undefined,   
-    }).set({
-        authorization: undefined
-    });
+
+    const id = '620cf56ef3ef06b26a42a93c';
+
+    //Not sending validation token
+    const response = await supertest(http).get(`/inn/community/sub/${id}`);
+
     expect(response.statusCode).toBe(406);
 });
 
@@ -65,14 +60,6 @@ test('GET /inn/community/:id/:page/:user', async()=>{
     expect(response.statusCode).toBe(404);
 });
 
-test('POST /inn/communities/filter - must get status 406 if any param is missing', async()=>{
-    const response = await supertest(http).post('/inn/communities/filter').send({
-        name: undefined 
-    }).set({
-        authorization: ''
-    });
-    expect(response.statusCode).toBe(406);
-});
 
 test('POST /inn/community/register - must get status 406 if any param is missing', async()=>{
     
@@ -90,26 +77,21 @@ test('POST /inn/community/register - must get status 406 if any param is missing
 
 test('GET testing sub error handler', async ()=>{
 
-    //Must be a invalid token
-    const token = undefined;
+
     const id = '620cf56ef3ef06b26a42a93c';
 
-    const response = await supertest(http).get('/inn/community/sub').send({
-        id: id
-    }).set({
-        authorization: token
-    });
+    //Not sending validation token
+    const response = await supertest(http).get(`/inn/community/sub/${id}`);
 
     expect(response.statusCode).toBe(406);
 });
 
 test('GET Testing sub', async ()=>{
+    //Those variables are suposed to be from already registered data
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMjVmOTkxZTg4MzIwMTk0MDY4NDdmYSIsImlhdCI6MTY0NjczOTY5NH0.eTjI8uRVBpGFRt9xu_hWMEjS5Zrhw3otqXei14z3BvE';
     const id = '620cf56ef3ef06b26a42a93c';
 
-    const response = await supertest(http).get('/inn/community/sub').send({
-        id: id
-    }).set({
+    const response = await supertest(http).get(`/inn/community/sub/${id}`).set({
         authorization: token
     });
 
@@ -117,12 +99,11 @@ test('GET Testing sub', async ()=>{
 });
 
 test('GET Testing unsub', async ()=>{
+    //Those variables are suposed to be from already registered data
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMjVmOTkxZTg4MzIwMTk0MDY4NDdmYSIsImlhdCI6MTY0NjczOTY5NH0.eTjI8uRVBpGFRt9xu_hWMEjS5Zrhw3otqXei14z3BvE';
     const id = '620cf56ef3ef06b26a42a93c';
 
-    const response = await supertest(http).get('/inn/community/sub').send({
-        id: id
-    }).set({
+    const response = await supertest(http).get(`/inn/community/sub/${id}`).set({
         authorization: token
     });
 

@@ -40,35 +40,36 @@ module.exports = {
     },
     async getPosts(req, res, cb){
         try{
-            const token = req.headers.authorization
-            let { page, nextMod } = req.body
-        
-            if( !page) throw errorFactory(406, 'Missing Data.')
+            const token = req.headers.authorization;
+            let { page, registers } = req.params;
 
-            const userId = await decriptToken(token).catch(e =>{ throw errorFactory(406, e.message) })
+            const userId = await decriptToken(token).catch(e =>{ throw errorFactory(406, e.message) });
 
-            const userFound = await User.findById(userId).catch(e =>{ throw errorFactory(406, 'Error finding user.')})
+            const userFound = await User.findById(userId)
+            .catch(e =>{ throw errorFactory(406, 'Error finding user.')});
             
-            if(!userFound) throw errorFactory(406, 'Error finding yours subs')
-
+            if(!userFound) throw errorFactory(406, 'Error finding yours subs');
 
             const count = await Post.find({ communityId: userFound.subs }).countDocuments().catch((error)=>{
                 errorFactory(500, 'Could not find posts.')
-            })
-            const skip = (parseInt(page) + (parseInt(nextMod))) * 3 - 3
+            });
             
-        
-            const docs = await Post.find({communityId : userFound.subs}).skip(skip).limit(3).populate('communityId').populate('authorId', 'user').
+            //On page 1 no registers will be skiped
+            const skip = (parseInt(page) - 1) * parseInt(registers);
+            
+            const docs = await Post.find({communityId : userFound.subs})
+            .skip(skip).limit(parseInt(registers)).populate('communityId').populate('authorId', 'user').
             catch((error)=>{ 
                 throw errorFactory(404, 'Could not find posts.')
-            })
-            
+            });
+
             res.json({
                 docs: docs,
-                lastPage:  count % 3 == 0 ? count / 3 : 
-                Math.round(count / 3) == count / 3 ? (count / 3)+1 : 
-                Math.round(count / 3),
-                page: page + nextMod
+                // To check if there are still any records the number of records skipped 
+                //plus the number of records retrieved is subtracted from the total document count, 
+                //if the result is 0 or less the last page variable is true
+                lastPage: count - (skip + parseInt(registers)) >= 0,
+                page: page
             })
     
         }catch(error){
@@ -78,21 +79,34 @@ module.exports = {
     async getPost(req, res, cb){
         try {
             
-            const { id, user } = req.params
+            const token = req.headers.authorization;
+            const { id } = req.params;
             
-            if(!id || !user) throw errorFactory(406, 'Missing param.')
-            
-            const post = await Post.findById(id).select('+listOfUsersWhoLikedIt +listOfUsersWhoDislikedIt')
+            const post = await Post.findById(id)
+            .select('+listOfUsersWhoLikedIt +listOfUsersWhoDislikedIt')
             .populate('communityId').populate('authorId', 'user').
             catch((error)=>{ 
                 throw errorFactory(404, 'Post data not found.')
-            })
+            });
 
-            if(!post) throw errorFactory(404 , 'Post data not found.')
+            if(!post) throw errorFactory(404 , 'Post data not found.');
 
-            const like = user == 'nl' ? false : post.listOfUsersWhoLikedIt.includes(user)
-            const dislike = user == 'nl' ? false : post.listOfUsersWhoDislikedIt.includes(user)
-            res.json({post, like, dislike})
+            //If the user is not logged there is no need to check on likes and dislikes
+            if(!token) res.json({post, like: false, dislike: false});
+
+            const userId = await decriptToken(token).catch(e =>{ 
+                throw errorFactory(406, 'Authorization error. Please login again.') 
+            });
+
+            const userFound = await User.findById(userId)
+            .catch(e =>{ throw errorFactory(406, 'Authorization error. Please login again.')});
+            
+            if(!userFound) res.json({post, like, dislike});
+
+            const like = post.listOfUsersWhoLikedIt.includes(userFound.user);
+            const dislike = post.listOfUsersWhoDislikedIt.includes(userFound.user);
+
+            res.json({post, like, dislike});
         } catch (error) {
             cb(error)
         }    
@@ -101,8 +115,6 @@ module.exports = {
     async getByCommunity(req, res, cb){
         try {
             const { id, page } = req.params 
-
-            
             
             if(!id || !page ) throw errorFactory(406, 'Missing params.')
             
