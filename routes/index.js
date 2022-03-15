@@ -13,12 +13,12 @@ router.post('/post/register', multer(configMulter).single('file'), postControlle
 router.get('/post/:id', postController.getPost);
 router.get('/posts/:id/:page', postController.getByCommunity);
 router.get('/posts/feed/:page/:registers', postController.getPosts);
-router.post('/post/deletePost', postController.deletePost);
+router.delete('/post/:id', postController.deletePost);
 
 
 router.post('/comment/register',  commentController.register);
 router.get('/comments/:id', commentController.getComments);
-router.post('/comment/deleteComment', commentController.deleteComment);
+router.delete('/comment/:id', commentController.deleteComment);
 
 
 router.post('/community/register', communityController.register);

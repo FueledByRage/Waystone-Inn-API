@@ -148,7 +148,7 @@ module.exports = {
             .skip(skip).limit(parseInt(registers)).populate('authorId', 'user')
             .catch((error) => {throw errorFactory(404, 'Error on posts data.',)});
 
-            const lastPage =  count - (skip + parseInt(registers)) >= 0;
+            const lastPage =  count - (skip + parseInt(registers)) <= 0;
             
 
 

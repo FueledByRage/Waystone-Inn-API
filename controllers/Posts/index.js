@@ -63,12 +63,13 @@ module.exports = {
                 throw errorFactory(404, 'Could not find posts.')
             });
 
+
             res.json({
                 docs: docs,
                 // To check if there are still any records the number of records skipped 
                 //plus the number of records retrieved is subtracted from the total document count, 
                 //if the result is 0 or less the last page variable is true
-                lastPage: count - (skip + parseInt(registers)) >= 0,
+                lastPage: count - (skip + parseInt(registers)) <= 0,
                 page: page
             })
     
