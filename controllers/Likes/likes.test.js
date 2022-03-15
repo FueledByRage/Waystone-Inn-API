@@ -7,7 +7,7 @@ require('dotenv').config({
 })
 
 beforeAll(async ()=>{
-    const { DATABASE_USER, DATABASE_PASSWORD, DATABASE_PORT } = process.env
+    const { DATABASE_USER, DATABASE_PASSWORD, DATABASE_PORT } = process.env;
 
 
     //BD
@@ -15,9 +15,9 @@ beforeAll(async ()=>{
 })
 
 afterAll(()=>{
-    mongoose.disconnect()
+    mongoose.disconnect();
 })
-/*
+
 test('GET /inn/like/:id', async ()=>{
 
     //it must be a valid id and token
@@ -29,22 +29,19 @@ test('GET /inn/like/:id', async ()=>{
     });
 
     expect(response.statusCode).toBe(200);
-});*/
+});
 
 test('GET /inn/like/:id - Testing the error handling', async ()=>{
 
-    //it must be a invalid id or token
+    //it must be a invalid id
     const postId = 'invalid';
-    const token = 'invalid';
 
-
-    const response = await supertest(http).get(`/inn/like/${postId}`).set({
-        authorization: ''
-    });
+    //Not sending a token
+    const response = await supertest(http).get(`/inn/like/${postId}`);
 
     expect(response.statusCode).toBe(406);
 });
-/*
+
 test('GET /inn/dislike/:id', async ()=>{
 
     //it must be a valid id and token
@@ -56,18 +53,16 @@ test('GET /inn/dislike/:id', async ()=>{
     });
 
     expect(response.statusCode).toBe(200);
-});*/
+});
 
 test('GET /inn/dislike/:id - Testing the error handling', async ()=>{
 
     //it must be a invalid id or token
     const postId = 'invalid';
-    const token = 'invalid';
+        
+    //Not sending a token
 
-
-    const response = await supertest(http).get(`/inn/dislike/${postId}`).set({
-        authorization: ''
-    });
+    const response = await supertest(http).get(`/inn/dislike/${postId}`);
 
     expect(response.statusCode).toBe(406);
 });

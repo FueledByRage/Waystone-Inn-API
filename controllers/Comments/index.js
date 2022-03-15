@@ -47,24 +47,24 @@ module.exports = {
     },
     async deleteComment(req, res, cb){
         try {
-            const token = req.headers.authorization
-            const { id } = req.body
+            const token = req.headers.authorization;
+            const { id } = req.params;
 
-            if(!token || !id) return res.status(406).send('Missing data.')
+            if(!token || !id) return res.status(406).send('Missing data.');
 
             const userId = await decriptToken(token).catch((error) =>{
-                throw errorFactory(406, error.message,)
+                throw errorFactory(406, error.message,);
             })
             const author = await Comment.findOne({_id: id}).select('authorId').catch((error)=>{
-                throw errorFactory(406, 'Could not find requested data.')
+                throw errorFactory(406, 'Could not find requested data.');
             })
             if(userId == author.authorId) await Comment.findByIdAndDelete(id).catch((error) => { 
-                throw errorFactory(500, 'Error deleting comment!') 
+                throw errorFactory(500, 'Error deleting comment!');
             })
-            else throw errorFactory(500, 'You have no permission to delete this comment!')
-            res.status(200).send()
+            else throw errorFactory(500, 'You have no permission to delete this comment!');
+            res.send();
         } catch (error) {
-            cb(error)
+            cb(error);
         }
     }
 }

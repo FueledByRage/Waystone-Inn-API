@@ -22,14 +22,13 @@ test('POST /inn/comment/register - gotta get an error since there is missing par
 
         //Must be invalide
         const id = '';
-        const token = '';
 
+    //Not sending authorization token
     const response = await supertest(http).post('/inn/comment/register').send({
         id: id,
         comment: '1234'
-    }).set({
-        authorization: token
     });
+
     expect(response.statusCode).toBe(406);
 });
 
@@ -54,19 +53,23 @@ test('GET /inn/comments/:id - gotta test if the route return a proper error sinc
 });
 
 test('POST /inn/comment/deleteComment - The request will fail since the token is not defined.', async()=>{
+    
+    //Not sending authorization token
+    
     const response = await supertest(http).post('/inn/comment/deleteComment').send({
         id:'1'
-    }).set({
-        authorization: undefined
     });
+
     expect(response.statusCode).toBe(406)
 });
 
 test('POST /inn/comment/deleteComment - The request will fail since the token is not from the comment author.', async()=>{
+    
+    //Not sending authorization token
+
+    
     const response = await supertest(http).post('/inn/comment/deleteComment').send({
         id:'611bb8cab9086b0bd0c03f9c'
-    }).set({
-        authorization: 'invalid token here'
     });
     expect(response.statusCode).toBe(406)
 });

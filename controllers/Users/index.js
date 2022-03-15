@@ -47,23 +47,25 @@ module.exports = {
     },
     async editProfile(req, res, cb){
         try {
-            const token = req.headers.authorization
-            const { key } = req.file ? req.file : { key: null } 
-    
-            if(!token || !key) throw errorFactory(406, 'Missing param.')
+            const token = req.headers.authorization;
+            //If there's no file sent the const key gets null
+            const { key } = req.file ? req.file : { key: null };
+
+
+            if(!token || !key) throw errorFactory(406, 'Missing param.');
     
             const userId = await cryptography.decriptToken(token).catch((error) => { 
-                throw errorFactory(406, error.message)
-            })
+                throw errorFactory(406, error.message);
+            });
     
-            await User.updateOne({_id: userId}, { profileURL: key ? `${process.env.URL}img/profile/${key}` : null }).
+            await User.updateOne({_id: userId}, { profileURL: `${process.env.URL}img/profile/${key}`}).
             catch((error) =>{ 
-                throw errorFactory(500, 'Error updating data')
-            })
+                throw errorFactory(500, 'Error updating data');
+            });
         
-            res.status(200).send()
+            res.status(200).send();
         } catch (error) {
-            cb(error)
+            cb(error);
         }
     },
     async login(req, res, cb){
@@ -80,35 +82,36 @@ module.exports = {
      
             if(user.password == password){
                 const token = await cryptography.generateToken({id: user._id}).catch((error)=>{
-                    throw errorFactory(500, error.message)
-                })
+                    throw errorFactory(500, error.message);
+                });
         
                 const responseJson = {
                     token: token,
                     user: user.user,
-                }
+                };
         
-                res.json(responseJson)
+                res.json(responseJson);
         
             }else{
-                throw Error('Authentication error!')
+                throw errorFactory('Wrong email or password.', 406);
             }
         }catch(error){
-            cb(error)
+            cb(error);
         }
      },
      async getUser(req, res, cb){
         try {
-            const { user } = req.params
+            const { user } = req.params;
+
             const userFound = await User.findOne({
                 user: user
             }).select('-_id').catch((error)=>{
                 throw errorFactory(404, 'Error finding user.')
-            })
-            if(!userFound) return res.status(404).send('User not found.')
-            res.status(200).json(userFound)
+            });
+            if(!userFound) return res.status(404).send('User not found.');
+            res.status(200).json(userFound);
         } catch (error) {
-            cb(error)
+            cb(error);
         }
      }
 

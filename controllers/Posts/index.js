@@ -132,32 +132,32 @@ module.exports = {
     async deletePost(req, res, cb){
         try {
 
-            const token = req.headers.authorization
+            const token = req.headers.authorization;
 
-            const { id } = req.body
+            const { id } = req.params;
 
-            if(!id || !token) throw errorFactory(406, 'Missing params')
+            if(!token) throw errorFactory(406, 'Missing params');
             
             const userId = await cryptography.decriptToken(token).catch((error) => { 
-                throw errorFactory(406, error.message)
-            })
+                throw errorFactory(406, error.message);
+            });
             const post = await Post.findOne({_id: id}).catch((error) =>{
-                throw errorFactory(404, 'Post not found.')
-            })
+                throw errorFactory(404, 'Post not found.');
+            });
 
             if(post.authorId == userId){
                 const post = await Post.findByIdAndDelete(id).catch((error)=>{ throw errorFactory(500, 'Error deleting posts.') })
                 Comment.deleteMany({postId: post._id})
                 if(post.url) fs.unlink( `uploads/img/${post.fileName}`).catch((error) =>{
                     throw errorFactory(500, 'Could not delete post data.')
-                })
+                });
                 
             }
-            else throw errorFactory(401, 'You have no permition to do this.')
+            else throw errorFactory(401, 'You have no permition to do this.');
 
-            res.status(200).send({id: post.communityId})
+            res.send({id: post.communityId});
         } catch (error) {
-            cb(error)
+            cb(error);
         }
     }
 }

@@ -41,6 +41,8 @@ runs npm start
 
 # Tests
 
+Delete and get tests require tokens and id's, what require dummies data.
+
 You can find automated test on app.test.js in the very project root. Run the test command to check out their logs.
 
 `npm test`
@@ -87,15 +89,15 @@ ENDPOINT | METHOD | PARAMS | EXPECTED SUCCESS | EXPECTED ERROR
 /post/:id | GET | id | CODE 200 - ok Get a post using the post id as param | { Message with error description}
 /post/:id/:page/:registers | GET | id, page, number of register to return | CODE 200 - ok Return a number of posts based on community id and a page number as param | { Message with error description}
 /posts/feed/:page/:registers | GET | subs, page and Authorization token | CODE 200 - ok it's receive the currenty page of a index and a mod that gonna be added to the page number and return a number of post from a list get using the subs as param | { Message with error description}
-/post/deletePost/:id | POST | id, Authorization token | CODE 200 - ok Delete a post by it's id | { Message with error description}
+/post/deletePost/:id | DELETE | id, Authorization token | CODE 200 - ok Delete a post by it's id | { Message with error description}
 
 ## Comment:
 
 ENDPOINT | METHOD | PARAMS | EXPECTED SUCCESS | EXPECTED ERROR
 ---------|--------|--------|------------------|---------------|
-/comment/register | POST | token, postId, comment | CODE 200 - ok Register a new comment and return it | { Message with error description}
+/comment/register | POST | token, postId, comment | CODE 201 - ok Register a new comment and return it | { Message with error description}
 /comments/:id| GET | id | CODE 200 - ok Return comments from a post based on it's id  | { Message with error description}
-/comment/deleteComment/:id | POST | id, token | CODE 200 - ok Delete a comment taking it's id as param | { Message with error description}
+/comment/deleteComment/:id | DELETE | id, token | CODE 200 - ok Delete a comment taking it's id as param | { Message with error description}
 
 # Powered by:
 

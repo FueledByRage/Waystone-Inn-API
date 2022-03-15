@@ -46,10 +46,10 @@ test('POST /inn/post/deletePost - Making sure the server throw an error if the t
 });
 
 
-test('POST /inn/post/deletePost - Making sure the server throw an error if once the id is invalid', async()=>{
-    const response = await supertest(http).post('/inn/post/deletePost').send({
-        id: '1'
-    }).set('Authorization', ' ');
+test('DELETE /inn/post/deletePost - Making sure the server throw an error if once the id is invalid', async()=>{
+    const id = 'someId';
+    //Not sending token
+    const response = await supertest(http).delete(`/inn/post/${id}`);
     expect(response.statusCode).toBe(406);
 });
 
