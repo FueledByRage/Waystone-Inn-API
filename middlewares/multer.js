@@ -11,7 +11,15 @@ require('dotenv').config({
 const storages = {
     local: multer.diskStorage({
         destination: (req, file, cb) => {
-            cb(null, path.resolve(__dirname, "..", "uploads", "img"));
+            const uploadOptions = {
+                '/user/edit':() => cb(null, path.resolve(__dirname, "..", "uploads", "img", "profile")),
+                '/user/register': () => cb(null, path.resolve(__dirname, "..", "uploads", "img", "profile")),
+                '/post/register':() => cb(null, path.resolve(__dirname, "..", "uploads", "img"))
+            }
+
+            const selectedOption = uploadOptions[req.url];
+            
+            selectedOption();
           },
           filename: (req, file, cb) => {
             crypto.randomBytes(16, (error, hash) =>{

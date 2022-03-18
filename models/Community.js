@@ -25,6 +25,10 @@ const Community = new Schema({
         type: Array,
         required: false, 
         select: false,
+    },
+    tags:{
+        type: Array, 
+        require: false,
     }
 })
 

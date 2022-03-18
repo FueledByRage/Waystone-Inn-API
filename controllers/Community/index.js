@@ -184,5 +184,22 @@ module.exports = {
         })
 
         res.status(200).send({communities: response});
+    },
+
+    async getUserCommunities(req, res, cb){
+        try {
+            const token = req.headers.authorization;
+
+            if(!token) throw errorFactory(406, 'Validation error.');
+    
+            const userId = await decriptToken(token).catch((e) => errorFactory('Token validation error.',406));
+
+            const communities = await Community.find({authorId: userId})
+            .catch((e) => errorFactory('', 500));
+
+            res.send(communities);
+        } catch (error) { 
+            cb(error);
+        }
     }
 }

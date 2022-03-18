@@ -51,7 +51,6 @@ module.exports = {
             //If there's no file sent the const key gets null
             const { key } = req.file ? req.file : { key: null };
 
-
             if(!token || !key) throw errorFactory(406, 'Missing param.');
     
             const userId = await cryptography.decriptToken(token).catch((error) => { 
@@ -93,7 +92,7 @@ module.exports = {
                 res.json(responseJson);
         
             }else{
-                throw errorFactory('Wrong email or password.', 406);
+                throw errorFactory(406, 'Wrong email or password.');
             }
         }catch(error){
             cb(error);
@@ -105,9 +104,10 @@ module.exports = {
 
             const userFound = await User.findOne({
                 user: user
-            }).select('-_id').catch((error)=>{
+            }).select('-_id -subs').catch((error)=>{
                 throw errorFactory(404, 'Error finding user.')
             });
+
             if(!userFound) return res.status(404).send('User not found.');
             res.status(200).json(userFound);
         } catch (error) {

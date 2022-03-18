@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 require('dotenv').config({
     path: __dirname + '/.env'
 })
-const { DATABASE_USER, DATABASE_PASSWORD, DATABASE_PORT, DATABASE_NAME, API_PORT } = process.env
+const { DATABASE_USER, DATABASE_PASSWORD, DATABASE_PORT, DATABASE_NAME, API_PORT } = process.env;
 
 
 //BD

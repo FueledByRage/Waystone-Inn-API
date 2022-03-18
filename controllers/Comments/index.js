@@ -33,17 +33,16 @@ module.exports = {
     },
     async getComments(req, res, cb){
         try {
-           const { id } = req.params
+           const { id } = req.params;
 
            const comments = await Comment.find( { postId: id} ).populate('authorId')
            .catch((error) =>{ 
-               throw errorFactory(404, 'Could not find requested data') })
-           res.json(comments)
-        } catch (error) {
-            cb(error)
-        }
+               throw errorFactory(404, 'Could not find requested data') });
 
-    
+           res.json(comments);
+        } catch (error) {
+            cb(error);
+        }
     },
     async deleteComment(req, res, cb){
         try {

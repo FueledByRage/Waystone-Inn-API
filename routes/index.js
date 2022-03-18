@@ -27,6 +27,7 @@ router.get('/community/:id/:page', communityController.getCommunityAndPost);
 router.get('/communities', communityController.getCommunities);
 router.get('/community/:id', communityController.getCommunity);
 router.get('/communities/:name', communityController.getCommunitiesByParam);
+router.get('/communities', communityController.getUserCommunities);
 
 
 router.post('/user/register', userController.register);
